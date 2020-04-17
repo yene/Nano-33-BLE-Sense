@@ -1,4 +1,5 @@
 // Temperature & Humidity Sensor
+// You can connect to it with the nRF Connect. For some reason on iOS it does not display the converted values.
 
 #include <ArduinoBLE.h> // The library to work with Bluetooth, docs https://www.arduino.cc/en/Reference/ArduinoBLE
 #include <Arduino_HTS221.h> // The library to read Temperature and Humidity, install "Arduino_HTS221", docs https://www.arduino.cc/en/Reference/ArduinoHTS221
@@ -6,7 +7,6 @@
 BLEService sensors("181A"); // Environment Sensing Service, docs https://www.bluetooth.com/specifications/gatt/services/
 // NOTE: It's a short with implied exponent of 10^-2. For example a value of 2321 = 23.21 degrees Celsiusa
 BLEShortCharacteristic currentTemperature("2A6E", BLERead); // short (sint16), degrees Celsius with a resolution of 0.01 https://www.bluetooth.com/xml-viewer/?src=https://www.bluetooth.com/wp-content/uploads/Sitecore-Media-Library/Gatt/Xml/Characteristics/org.bluetooth.characteristic.temperature.xml
-
 BLEUnsignedShortCharacteristic currentHumidity("2A6F", BLERead); // uint16, %, with a resolution of 0.01, https://www.bluetooth.com/xml-viewer/?src=https://www.bluetooth.com/wp-content/uploads/Sitecore-Media-Library/Gatt/Xml/Characteristics/org.bluetooth.characteristic.humidity.xml
 
 void setup() {
@@ -27,14 +27,12 @@ void setup() {
   BLE.setDeviceName("");
   BLE.setLocalName("Temperature & Humidity Sensor");
   
-  BLE.setAdvertisedService(sensors);
-  sensors.addCharacteristic(currentTemperature);
   currentTemperature.setEventHandler(BLERead, readTemperature);
-  readTemperature(BLE.central(), currentTemperature);
+  sensors.addCharacteristic(currentTemperature);
   currentHumidity.setEventHandler(BLERead, readHumidity);
-  readHumidity(BLE.central(), currentHumidity);
   sensors.addCharacteristic(currentHumidity);
   BLE.addService(sensors);
+  BLE.setAdvertisedService(sensors);
 
   /* Start advertising BLE. It will start continuously transmitting BLE
      advertising packets and will be visible to remote BLE central devices
@@ -70,7 +68,7 @@ void readTemperature(BLEDevice central, BLECharacteristic characteristic) {
 void readHumidity(BLEDevice central, BLECharacteristic characteristic) {
   float humidity = HTS.readHumidity();
   short t = convertFloatToShort(humidity);
-  currentHumidity.writeValue(humidity);
+  currentHumidity.writeValue(t);
   Serial.print("Humidity = "); Serial.println(humidity);
 }
 
