@@ -28,6 +28,12 @@ void setup(){
     Serial.println("Failed to initialize Colour, Proximity and Gesture Sensor!");
     while (1);
   }
+  // APDS.setSensitivity(80); takes a value between 1 and 100 is required. Default is 80.
+  // Higher values makes the gesture recognition more sensible but less accurate
+  // (a wrong gesture may be detected). Lower values makes the gesture recognition
+  // more accurate but less sensible (some gestures may be missed).
+  // The internal inra-red LED can be increased up to 3 times with APDS.setLEDBoost
+
  }
 
 float accel_x, accel_y, accel_z;
@@ -43,44 +49,80 @@ void loop() {
     IMU.readAcceleration(accel_x, accel_y, accel_z);
     Serial.print("Accelerometer = "); Serial.print(accel_x); Serial.print(", "); Serial.print(accel_y); Serial.print(", "); Serial.println(accel_z);
   }
-  delay (200);
+  // delay (200);
 
   // Gyroscope values 
   if (IMU.gyroscopeAvailable()) {
     IMU.readGyroscope(gyro_x, gyro_y, gyro_z);
     Serial.print("Gyroscope = "); Serial.print(gyro_x); Serial.print(", "); Serial.print(gyro_y);Serial.print(", "); Serial.println(gyro_z);
   }
-  delay (200);
 
   // Magnetometer values 
   if (IMU.magneticFieldAvailable()) {
     IMU.readMagneticField(mag_x, mag_y, mag_z);
     Serial.print("Magnetometer = "); Serial.print(mag_x); Serial.print(", "); Serial.print(mag_y); Serial.print(", "); Serial.println(mag_z);
   }
-  delay (200);
 
   // Read Pressure value
   Pressure = BARO.readPressure();
   Serial.print("Pressure = "); Serial.println(Pressure);
-  delay (200);
 
   // Read Temperature value
   Temperature = HTS.readTemperature();
   Serial.print("Temperature = "); Serial.println(Temperature);
-  delay (200);
 
   // Read Humidity value
   Humidity = HTS.readHumidity();
   Serial.print("Humidity = "); Serial.println(Humidity);
-  delay (200);
+
+  if (true) { // This function also enables the gesture sensor when called for the first time.
+    Serial.print("Waiting for gesture ...");
+    delay (500);
+    // TODO: Find out how to correctly wait for gestures
+    int tries = 50;
+    while(APDS.gestureAvailable() == 0 && tries > 0) {
+      tries--;
+      Serial.print(".");
+      delay(30);
+    }
+    Serial.println("");
+    int gesture = APDS.readGesture();
+    switch (gesture) {
+      case GESTURE_UP:
+        Serial.println("Detected UP gesture");
+        break;
+      case GESTURE_DOWN:
+        Serial.println("Detected DOWN gesture");
+        break;
+      case GESTURE_LEFT:
+        Serial.println("Detected LEFT gesture");
+        break;
+      case GESTURE_RIGHT:
+        Serial.println("Detected RIGHT gesture");
+        break;
+      case GESTURE_NONE:
+        Serial.println("Detected NONE gesture");
+        break;        
+      default:
+        break;
+    }
+  }
 
   // Proximity value
   if (APDS.proximityAvailable()) {
     Proximity = APDS.readProximity();
     Serial.print("Proximity = "); Serial.println(Proximity); 
   }
-  delay (200);
+
+  if (APDS.colorAvailable()) { // This function also enables the color sensor when called for the first time.
+    int r, g, b, c;
+    // read the color and clear light intensity
+    APDS.readColor(r, g, b, c);
+    Serial.print("Color = "); Serial.print(r); Serial.print(","); Serial.print(g); Serial.print(","); Serial.println(b);
+    Serial.print("Light Intensity = "); Serial.println(c);
+    // Note: ambient light information can be used to control display color temperature and backlight.
+  }
 
   Serial.println("_____________________________________________________"); 
-  delay(2000);
+  delay(4000);
 }
