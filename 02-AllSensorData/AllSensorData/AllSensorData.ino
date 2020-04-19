@@ -113,8 +113,17 @@ void loop() {
     Proximity = APDS.readProximity();
     Serial.print("Proximity = "); Serial.println(Proximity); 
   }
-
-  if (APDS.colorAvailable()) { // This function also enables the color sensor when called for the first time.
+  
+  if (true) { // This function also enables the color sensor when called for the first time.
+    Serial.print("Waiting for color ...");
+    delay (500);
+    int tries = 50;
+    while(APDS.colorAvailable() == 0 && tries > 0) {
+      tries--;
+      Serial.print(".");
+      delay(30);
+    }
+    Serial.println("");
     int r, g, b, c;
     // read the color and clear light intensity
     APDS.readColor(r, g, b, c);
