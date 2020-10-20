@@ -5,12 +5,13 @@
   See web frontend `vuejs-webui`.
 */
 
-#include <ArduinoBLE.h>
+#include <ArduinoBLE.h> // The library for bluetooth connection, install "ArduinoBLE"
 #include <Arduino_LSM9DS1.h> // The library for 9-axis IMU, install "Arduino_LSM9DS1", docs https://www.arduino.cc/en/Reference/ArduinoLSM9DS1
 #include <Arduino_LPS22HB.h> // The library to read Pressure, install "Arduino_LPS22HB", docs https://www.arduino.cc/en/Reference/ArduinoLPS22HB
 #include <Arduino_HTS221.h> // The library to read Temperature and Humidity, install "Arduino_HTS221", docs https://www.arduino.cc/en/Reference/ArduinoHTS221
 #include <Arduino_APDS9960.h> // The library for colour, proximity and gesture recognition, install "Arduino_APDS9960", docs https://www.arduino.cc/en/Reference/ArduinoAPDS9960
 #include <Adafruit_NeoPixel.h> // The library for NeoPixels, docs https://adafruit.github.io/Adafruit_NeoPixel/html/class_adafruit___neo_pixel.html
+
 
 #define DEBUG
 
@@ -68,7 +69,7 @@ void setup(){
   while (!Serial) {
     ; // wait for serial port to connect
   }
-  Serial.printf("DeviceAddr %08X%08X\n", NRF_FICR->DEVICEADDR[1], NRF_FICR->DEVICEADDR[0]);
+  Serial.printf("DeviceAddr %08X%08X\n", (unsigned int)NRF_FICR->DEVICEADDR[1], (unsigned int)NRF_FICR->DEVICEADDR[0]);
   #endif
   
   if (!IMU.begin()) { // Initialize IMU sensor 
@@ -282,7 +283,7 @@ void readColor(BLEDevice central, BLECharacteristic characteristic) {
   int r, g, b, c;
   APDS.readColor(r, g, b, c); // read the color and clear light intensity
   char buf[32];
-  sprintf(buf, "%f,%f,%f", r, g, b);
+  sprintf(buf, "%d,%d,%d", r, g, b);
   color.writeValue(String(buf));
   lightIntensity.writeValue(c);
   log("Color = "); logln(buf);
