@@ -15,3 +15,4 @@
 * https://www.youtube.com/watch?v=_6LXKuo28M0
 * http://www.arduinoslovakia.eu/blog/2018/4/neopixel-ring-hsv-rotujuce-kruhy?lang=en
 * https://github.com/RoboUlbricht/arduinoslovakia/tree/master/neopixel
+* https://dalegi.com
